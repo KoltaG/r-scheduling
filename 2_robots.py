@@ -62,18 +62,18 @@ def single_robot_schedule(T_weights, T_subtree):
 
     return L
 
-#Define graph animation function
-def draw_graph(self, draw):
-    if draw:
-        pos = nx.spring_layout(self.graph, iterations=200, seed=39775)
-
     
-        # nodes = list(self.graph.nodes.data())
+                 
+#Define graph animation function
+def draw_graph(self, pos,draw ):
+    if draw:
+       
+        #nodes = list(self.graph.nodes.data())
 
         # node_colors = []
         # for node in nodes:
 
-        nx.draw(self.graph, pos)
+        nx.draw(self, pos)
 
     plt.show()
 
@@ -91,6 +91,25 @@ def main():
     m = math.log2(w_max/w_min)
     # Round the weights to the nearest dyadic value
     weights = [(original_weight[0], 2**math.ceil(math.log2(original_weight[1]))) for original_weight in original_weights]
+
+    #create the graph
+    graph = nx.complete_graph(len(weights))
+   
+    for i in range(len(weights)):
+        graph.add_nodes_from(weights[i])
+
+    labels ={}
+    for i in range(len(weights)):
+        #set the node key as the label key and the label (which is the coord (id+weight)) as its value 
+        labels[weights[i][0]] = weights[i]
+ 
+    pos = {weights[i][0]:weights[i] for i in range(len(weights))}
+    
+    nx.draw(graph, node_size=1500, node_color="skyblue",with_labels=True, pos=pos, labels=labels)
+    plt.axis("on")
+    plt.savefig("output/original_graph" +  ".png",
+                bbox_inches='tight', dpi = 250)
+
     # Run the k-robot assignment algorithm
     L = 6 # Guess an upper bound for the optimal maximum weighted latency
     T = None
@@ -128,37 +147,19 @@ def main():
     print('Number of robots:', k)
     print('Minimized Maximum weighted latency:', max_latency)
 
-    #save_original_graph(original_weights)
-    #save_original_graph(weights, True)
+    save_original_graph(original_weights)
     #save_animations(T[0])
+    draw_graph(graph, pos, True)
 
+    
 
-#Show the original graph
-    graph = nx.complete_graph(len(weights))
-    #graph = nx.Graph()
-    for i in range(len(weights)):
-        graph.add_nodes_from(weights[i])
-
-    labels ={}
-    for i in range(len(weights)):
-        print("node", weights[i])
-        #set the node name as the key and the label as its value 
-        labels[weights[i][0]] = weights[i]
- 
-    pos = {weights[i][0]:weights[i] for i in range(len(weights))}
-
-    print("pos", pos)  
-    #pos=nx.spring_layout(graph, k=0.15, iterations=20)  
-    nx.draw(graph, node_size=1500, node_color="skyblue",with_labels=True, pos=pos, labels=labels)
-    plt.axis("on")
-   
-    #plt.ion()
-    plt.show()
+#plt.ion()
+    #plt.show()
     
     #draw_graph(graph, True)
     # plt.pause(100)
 
-    # plt.ioff()
+    # plt.ioff()    
 
 
 
