@@ -121,15 +121,9 @@ def move(graph, subtree):
     
 
 # Define the main function
-def main():
+def main(original_weights):
     # Define the weights of the nodes (node, weight)
-    # original_weights = [(3, 2), (4, 3), (5, 2),(6, 1), (0, 1), (1, 1), (2, 1), (7, 3),(8, 2)]
-    # original_weights = [(3, 2), (4, 3), (5, 2), (0, 5), (1, 1),(6, 1), (2, 1), (7, 3),(8, 2)]
-    original_weights = [(1, 3), (2, 2), (3, 1), (4, 2), (0, 3)]
-    # original_weights = [(1, 1), (2, 2), (4, 2), (0, 3),(3, 1)]
-    # original_weights = []
-    # for i in range(9):
-    #     original_weights.append((i, random.randint(1,8)))
+   
     # Define the number of robots
     k = 2
     # Compute the smallest and largest weights
@@ -138,8 +132,8 @@ def main():
     # Compute the value of m
     m = math.log2(w_max/w_min)
     # Round the weights to the nearest dyadic value
-    weights = [(original_weight[0], 2**math.ceil(math.log2(original_weight[1]))) for original_weight in original_weights]
-    
+    #weights = [(original_weight[0], 2**math.ceil(math.log2(original_weight[1]))) for original_weight in original_weights]
+    weights = original_weights
     #create the graph
     graph = nx.complete_graph(len(weights))
    
@@ -152,7 +146,7 @@ def main():
         labels[weights[i][0]] = weights[i]
  
     #pos
-    pos = {weights[i][0]:weights[i] for i in range(len(weights))}
+    pos = {weight[0]:weight for i,weight in enumerate((weights))}
     print("pos", pos)
     
     nx.draw(graph, node_size=1500, node_color="skyblue",with_labels=True, pos=pos, labels=labels)
@@ -212,14 +206,28 @@ def main():
     for i in range(50):
         draw_graph(graph, pos, True, T[0], labels) 
         plt.pause(0.75)
-        if i > 20:
+        if i > 20: #move the robots after 20 iterations
             for subtree in T[0]:
                 move(graph, subtree)
+               
+        # plt.savefig("output/subtrees" +  ".png",
+        #     bbox_inches='tight', dpi = 250)        
         plt.clf()
        
     plt.ioff()
   
 
+#original_weights = [(0, 9), (1, 1), (2, 3), (3, 5), (4, 5), (5, 6), (6, 7), (7, 7), (8, 5), (9, 9)]
+#original_weights = [(3, 2), (4, 3), (5, 2),(6, 1), (0, 1), (1, 1), (2, 1), (7, 3),(8, 2)]
+original_weights = [(3, 2), (4, 3), (5, 2), (0, 5), (1, 1),(6, 1), (2, 1), (7, 3),(8, 2)]
+#original_weights = [(1, 3), (2, 2), (3, 1), (4, 2), (0, 3)]
+
+# original_weights = [(1, 1), (2, 2), (4, 2), (0, 3),(3, 1)]
+# original_weights = [(1, 3), (2, 2), (3, 1), (4, 2), (0, 1)]
+# original_weights = []
+# for i in range(10):
+#     original_weights.append((i, random.randint(1,10)))
+# print("original_weights", original_weights)    
 if __name__ == '__main__':
-    main()
+    main(original_weights)
 
