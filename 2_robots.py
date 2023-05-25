@@ -89,11 +89,11 @@ def draw_graph(graph, pos,draw, subtrees,labels ):
         node_colors = []
         for i,node in enumerate(nodes): 
             if graph.nodes[i]["is_occupied"]:
-                node_colors.append("black")
+                node_colors.append("lawngreen")
             elif node in subtrees[0]: #ehelyett bejárni
-                node_colors.append("red")
+                node_colors.append("orange")
             elif node in subtrees[1]:
-                node_colors.append("green")    
+                node_colors.append("lightcoral")    
             else:
                 node_colors.append("skyblue")
 
@@ -104,7 +104,7 @@ def draw_graph(graph, pos,draw, subtrees,labels ):
 def move(graph, subtree):
     H = graph.subgraph(subtree)
     occupied_node = [node[0] for node in H.nodes.data() if node[1]['is_occupied']]
-
+    # print("occupied_node", occupied_node)
     occupied_node_index = subtree.index(occupied_node[0])
 
     if occupied_node_index == len(subtree)-1:
@@ -201,32 +201,24 @@ def main():
     print('Node ids and weights:', weights)
     print('Number of robots:', k)
     print('Minimized Maximum weighted latency:', max_latency)
+    print('***END***')
 
-    #save_animations(T[0])
-
+    # Draw the graph
     attach_status_to_nodes(graph)
-    #TODO T roots-al 
-    graph.nodes[0]['is_occupied'] = True
-    graph.nodes[3]['is_occupied'] = True
+
+    graph.nodes[T[1][0]]['is_occupied'] = True
+    graph.nodes[T[1][1]]['is_occupied'] = True
     plt.ion()
     for i in range(50):
         draw_graph(graph, pos, True, T[0], labels) 
-        plt.pause(0.5)
-        for subtree in T[0]:
-            move(graph, subtree)
+        plt.pause(0.75)
+        if i > 20:
+            for subtree in T[0]:
+                move(graph, subtree)
         plt.clf()
        
     plt.ioff()
   
-
-    
-    
-
-
-
-
-
-
 
 if __name__ == '__main__':
     main()
