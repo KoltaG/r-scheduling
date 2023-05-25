@@ -50,8 +50,8 @@ def single_robot_schedule(T_weights, T_subtree,T_root):
     n = len(T_subtree)
     L = 0
     print("T_weights", T_weights)
-    print("T_subtree", T_subtree) #index of the node in the original graph, not ID! 
-    #print("T_root", T_root)
+    print("T_subtree", T_subtree)  
+    print("T_root", T_root)
     index_of_t_root = T_subtree.index(T_root)
     #print("indexof T_root", index_of_t_root)
     for i in range(n)[index_of_t_root:]:
@@ -68,26 +68,57 @@ def single_robot_schedule(T_weights, T_subtree,T_root):
 
     return L
 
-    
+def attach_feature_to_node(graph, node, feature, value):
+    graph.nodes[node][feature] = value
+
+def attach_feature_to_nodes(graph, feature, values):
+    nodes = graph.nodes
+    for index, node in enumerate(nodes):
+        attach_feature_to_node(graph, node, feature, values[index])
+
+def attach_status_to_nodes(graph):
+    nodes = graph.nodes
+    values = [False] * len(nodes)
+    attach_feature_to_nodes(graph, 'is_occupied', values)        
                  
 #Define graph animation function
-def draw_graph(self, pos,draw, subtrees ):
+def draw_graph(graph, pos,draw, subtrees,labels ):
     if draw:
-        nodes = list(self.nodes())
-        print("nodes", nodes)
+        nodes = list(graph.nodes())
+        #print("nodes", nodes)
         node_colors = []
-        for node in nodes: 
-            #ehelyett bejárni
-            if node in subtrees[0]:
+        for i,node in enumerate(nodes): 
+            if graph.nodes[i]["is_occupied"]:
+                node_colors.append("black")
+            elif node in subtrees[0]: #ehelyett bejárni
                 node_colors.append("red")
             elif node in subtrees[1]:
                 node_colors.append("green")    
             else:
                 node_colors.append("skyblue")
 
-        nx.draw(self, pos, node_size=1500, cmap=mcolors.BASE_COLORS, node_color=node_colors,)
+        nx.draw(graph, pos, node_size=1500, cmap=mcolors.BASE_COLORS, node_color=node_colors,with_labels=True, labels=labels)
 
     plt.show()
+
+def move(graph, subtree):
+    H = graph.subgraph(subtree)
+    occupied_node = [node[0] for node in H.nodes.data() if node[1]['is_occupied']]
+
+    occupied_node_index = subtree.index(occupied_node[0])
+
+    if occupied_node_index == len(subtree)-1:
+        next = subtree[0]
+    else: 
+        next = subtree[occupied_node_index+1]
+
+    graph.nodes[occupied_node[0]]['is_occupied'] = False
+    graph.nodes[next]['is_occupied'] = True
+
+    # print("occupied_node", occupied_node)    
+    # print("next", next)    
+    # print([node for node in graph.nodes.data()])
+    
 
 # Define the main function
 def main():
@@ -128,7 +159,7 @@ def main():
     plt.axis("on")
     plt.savefig("output/original_graph" +  ".png",
                 bbox_inches='tight', dpi = 250)
-
+    # plt.show()
     # Run the k-robot assignment algorithm
     L = 6 # Guess an upper bound for the optimal maximum weighted latency
     T = None
@@ -172,17 +203,25 @@ def main():
     print('Minimized Maximum weighted latency:', max_latency)
 
     #save_animations(T[0])
-    draw_graph(graph, pos, True, T[0]) 
+
+    attach_status_to_nodes(graph)
+    #TODO T roots-al 
+    graph.nodes[0]['is_occupied'] = True
+    graph.nodes[3]['is_occupied'] = True
+    plt.ion()
+    for i in range(50):
+        draw_graph(graph, pos, True, T[0], labels) 
+        plt.pause(0.5)
+        for subtree in T[0]:
+            move(graph, subtree)
+        plt.clf()
+       
+    plt.ioff()
+  
 
     
-
-#plt.ion()
-    #plt.show()
     
-    #draw_graph(graph, True)
-    # plt.pause(100)
 
-    # plt.ioff()    
 
 
 
